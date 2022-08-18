@@ -1,6 +1,4 @@
 from dataclasses import dataclass
-
-
 import random
 from this import d
 import pandas as pd
@@ -20,13 +18,24 @@ from sklearn.metrics import mean_squared_error
 
 import warnings
 
-from dataset import CustomDataset, data_split
-from config import CFG
-from model import BaseModel
+from util.dataset import CustomDataset, data_split
+from config.base_config import CFG
+from model.base_model import BaseModel
 from train import train
 from inference import inference
 from random_seed import seed_everything
 warnings.filterwarnings(action='ignore') 
+
+def seed_everything(seed):
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = True
+
+
 if __name__ == '__main__':
     
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
