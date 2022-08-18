@@ -1,0 +1,8 @@
+CFG = {
+    'WIDTH':48,
+    'HEIGHT':72,
+    'EPOCHS':1,
+    'LEARNING_RATE':1e-3,
+    'BATCH_SIZE':128,
+    'SEED':41
+}
