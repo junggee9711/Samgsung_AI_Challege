@@ -13,7 +13,7 @@ class Conv_Block(nn.Module):
 class DepthModel(nn.Module):
     def __init__(self, height, width) :
         super(DepthModel, self).__init__()
-        self.conv_block = self.make_layer(Conv_Block, 3)
+        self.conv_block = self.make_layer(Conv_Block, 5)
         self.in_conv = nn.Conv2d(in_channels=1, out_channels=64, kernel_size=3, stride=1, padding=1, bias=False)
         self.out_conv = nn.Conv2d(in_channels=64, out_channels=1, kernel_size=3, stride=1, padding=1, bias=False)
         self.relu = nn.ReLU()
