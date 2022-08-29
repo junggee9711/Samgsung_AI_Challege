@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import random
+import string
 import pandas as pd
 import numpy as np
 import os
@@ -22,8 +23,12 @@ from util.train import train
 from inference import inference
 import importlib
 import json
+import argparse
+parser = argparse.ArgumentParser(description='config_file')
+parser.add_argument('--model', default='base')
+args = parser.parse_args()
 
-with open('./config/base_config.json', 'r') as f:
+with open('./config/{}_config.json'.format(args.model), 'r') as f:
     config = json.load(f)
 model_cfg = importlib.import_module("model.{}".format(config["MODEL"]))
 
@@ -38,16 +43,7 @@ def seed_everything(seed):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = True
 
-import argparse
-parser = argparse.ArgumentParser(description='main_parameters')
-parser.add_argument('--batch_size', type=int, default=config['BATCH_SIZE'])
-parser.add_argument('--seed', type=int, default=config['SEED'])
-parser.add_argument('--lr', type=float, default=config['LEARNING_RATE'])
-parser.add_argument('--height', type=int, default=config['HEIGHT'])
-parser.add_argument('--width', type=int, default=config['WIDTH'])
-parser.add_argument('--epochs', type=int, default=config['EPOCHS'])
 
-args = parser.parse_args()
 
 if __name__ == '__main__':
     
@@ -66,22 +62,23 @@ if __name__ == '__main__':
 
     #define dataset
     train_dataset = CustomDataset(train_sem_paths, train_depth_paths)
-    train_loader = DataLoader(train_dataset, batch_size = args.batch_size, shuffle=True, num_workers=0)
+    train_loader = DataLoader(train_dataset, batch_size = config['BATCH_SIZE'], shuffle=True, num_workers=0)
 
     val_dataset = CustomDataset(val_sem_paths, val_depth_paths)
-    val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=0)
+    val_loader = DataLoader(val_dataset, batch_size=config['BATCH_SIZE'], shuffle=False, num_workers=0)
     ###############################################################################################################################
     #run!!
-    model = model_cfg.DepthModel(args.height, args.width)
+    model = model_cfg.DepthModel(config['HEIGHT'], config['WIDTH'])
+    print("Model : {}".format(config['MODEL']))
     model.eval()
-    optimizer = torch.optim.Adam(params = model.parameters(), lr = args.lr)
+    optimizer = torch.optim.Adam(params = model.parameters(), lr = config['LEARNING_RATE'])
     scheduler = None
 
-    infer_model = train(model, optimizer, train_loader, val_loader, scheduler, device, args.epochs)
+    infer_model = train(model, optimizer, train_loader, val_loader, scheduler, device, config['EPOCHS'])
     ###############################################################################################################################
     #inference & submission
     test_sem_path_list = sorted(glob.glob('./dataset/test/SEM/*.png'))
     test_dataset = CustomDataset(test_sem_path_list, None)
-    test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=0)
+    test_loader = DataLoader(test_dataset, batch_size=config['BATCH_SIZE'], shuffle=False, num_workers=0)
 
     inference(infer_model, test_loader, device)
