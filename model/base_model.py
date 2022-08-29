@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
 
-class BaseModel(nn.Module):
+class DepthModel(nn.Module):
     def __init__(self, height, width):
-        super(BaseModel, self).__init__()
+        super(DepthModel, self).__init__()
         self.encoder = nn.Sequential(
             nn.Linear(height * width, 1024),
             nn.BatchNorm1d(1024),

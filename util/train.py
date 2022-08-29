@@ -1,18 +1,20 @@
 import torch
 import torch.nn as nn
-from config import CFG
 from tqdm.auto import tqdm
-from val import validation
+from util.val import validation
 import numpy as np
+import json
 
+with open('./config/base_config.json', 'r') as f:
+    config = json.load(f)
 
-def train(model, optimizer, train_loader, val_loader, scheduler, device):
+def train(model, optimizer, train_loader, val_loader, scheduler, device, epochs):
     model.to(device)
     criterion = nn.L1Loss().to(device)
     best_score = 999999
     best_model = None
     
-    for epoch in range(1, CFG['EPOCHS']+1):
+    for epoch in range(1, epochs+1):
         model.train()
         train_loss = []
         for sem, depth in tqdm(iter(train_loader)):
