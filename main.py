@@ -65,7 +65,7 @@ if __name__ == '__main__':
     train_loader = DataLoader(train_dataset, batch_size = config['BATCH_SIZE'], shuffle=True, num_workers=0)
 
     val_dataset = CustomDataset(val_sem_paths, val_depth_paths)
-    val_loader = DataLoader(val_dataset, batch_size=config['BATCH_SIZE'], shuffle=False, num_workers=0)
+    val_loader = DataLoader(val_dataset, batch_size=config['BATCH_SIZE'], shuffle=True, num_workers=0)
     ###############################################################################################################################
     #run!!
     model = model_cfg.DepthModel(config['HEIGHT'], config['WIDTH'])
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     optimizer = torch.optim.Adam(params = model.parameters(), lr = config['LEARNING_RATE'])
     scheduler = None
 
-    infer_model = train(model, optimizer, train_loader, val_loader, scheduler, device, config['EPOCHS'])
+    infer_model = train(model, optimizer, train_loader, val_loader, scheduler, device, config)
     ###############################################################################################################################
     #inference & submission
     test_sem_path_list = sorted(glob.glob('./dataset/test/SEM/*.png'))
