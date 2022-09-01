@@ -33,7 +33,18 @@ class DepthModel(nn.Module):
         )
         self.height = height
         self.width = width
+        self.initialize_weights()
         
+    def initialize_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                nn.init.kaiming_uniform_(m.weight)
+                nn.init.constant_(m.bias, 0)
+            
+            elif isinstance(m, nn.BatchNorm1d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            
     def forward(self, x):
         x = x.view(-1, self.height * self.width)
         x = self.encoder(x)

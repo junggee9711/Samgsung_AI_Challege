@@ -56,6 +56,21 @@ class DepthModel(nn.Module):
         self.up3 = UP(256, 128)
         self.up4 = UP(128, 64)
         self.out_conv = nn.Conv2d(64, 1, kernel_size=1)
+        self.initialize_weights()
+
+    def initialize_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                nn.init.kaiming_uniform_(m.weight)
+                nn.init.constant_(m.bias, 0)
+            
+            elif isinstance(m, nn.BatchNorm1d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Conv2d):
+                nn.init.kaiming_uniform_(m.weight)
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
 
     def forward(self, x):
         x1 = self.double_conv(x)
