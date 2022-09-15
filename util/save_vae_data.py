@@ -22,3 +22,4 @@ def save_imgs(data_loader, device):
     for path, pred_img in zip(result_name_list, result_list):
         cv2.imwrite(path, pred_img)
     print("vae data saved")
+    os.chdir("../")

@@ -6,6 +6,7 @@ from util.val import validation
 import numpy as np
 import json
 import wandb
+import pdb
 
 def train(model, optimizer, train_loader, val_loader, scheduler, device, config):
     wandb.init(project="Samsung_AI_Challenge", entity="jnamq")
@@ -32,9 +33,9 @@ def train(model, optimizer, train_loader, val_loader, scheduler, device, config)
             optimizer.zero_grad()
             model_pred = model(sem)
             #limit max depth by case
-            max = 130 + 10*case
-            for i in range(len(model_pred)):
-                model_pred[i][0][model_pred[i][0]>max[i]] = max[i]
+            # max = (130 + 10*case)/255
+            # for i in range(len(model_pred)):
+            #     model_pred[i][0][model_pred[i][0]>max[i]] = max[i]
 
             loss = criterion(model_pred, depth)
             loss.backward()

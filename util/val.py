@@ -12,7 +12,7 @@ def validation(model, criterion, val_loader, device):
     val_loss = []
     val_rmse = []
     with torch.no_grad():
-        for sem, depth, _ in tqdm(iter(val_loader)):
+        for sem, depth, _, _ in tqdm(iter(val_loader)):
             sem = sem.float().to(device)
             depth = depth.float().to(device)
             

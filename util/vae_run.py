@@ -1,8 +1,3 @@
-#1. train data 불러오기
-#2. model 불러오기
-#3. loss func
-#4. train, weight 저장 
-#5. weight 불러와서 SEM 데이터 통과시켜서 return or 저장
 from dataclasses import dataclass
 from unittest import case
 import pandas as pd

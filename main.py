@@ -17,6 +17,8 @@ from tqdm.auto import tqdm
 from sklearn.metrics import mean_squared_error
 
 import warnings
+from model.Classification import Classification_Model
+from util.classify_train import train_classify
 
 from util.dataset import CustomDataset, data_split
 from util.save_vae_data import save_imgs
@@ -29,6 +31,7 @@ import argparse
 parser = argparse.ArgumentParser(description='config_file')
 parser.add_argument('--model', default='base')
 parser.add_argument('--vae', default=False)
+parser.add_argument('--classify', default=False)
 args = parser.parse_args()
 
 with open('./config/{}_config.json'.format(args.model), 'r') as f:
@@ -64,6 +67,15 @@ if __name__ == '__main__':
     #split train/eval data
     d_split = data_split(simulation_sem_paths, simulation_depth_paths)
     train_sem_paths, train_depth_paths, val_sem_paths, val_depth_paths = d_split.split(0.8)
+    
+    if args.classify :
+        print("Train Classification")
+        classify_model = Classification_Model()
+        classify_model.eval()
+        optimizer = torch.optim.Adam(params = classify_model.parameters(), lr = config['LEARNING_RATE'])
+        train_dataset = CustomDataset(simulation_sem_paths, simulation_depth_paths)
+        train_loader = DataLoader(train_dataset, batch_size = config['BATCH_SIZE'], shuffle=True, num_workers=0)
+        class_model = train_classify(classify_model, optimizer, train_loader, device)
 
     #define dataset
     if args.vae :
@@ -93,4 +105,4 @@ if __name__ == '__main__':
     test_dataset = CustomDataset(test_sem_path_list, None)
     test_loader = DataLoader(test_dataset, batch_size=config['BATCH_SIZE'], shuffle=False, num_workers=0)
 
-    inference(infer_model, test_loader, device)
+    inference(infer_model, class_model, test_loader, device)

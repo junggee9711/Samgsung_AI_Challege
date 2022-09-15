@@ -6,7 +6,7 @@ import numpy as np
 
 def train(model, optimizer, train_loader, scheduler, device):
     model.to(device)
-    for epoch in range(1, 11):
+    for epoch in range(1, 31):
         model.train()
         train_loss = []
         for img in tqdm(iter(train_loader)):
