@@ -24,15 +24,19 @@ def train(model, optimizer, train_loader, val_loader, scheduler, device, config)
     for epoch in range(1, config['EPOCHS']+1):
         model.train()
         train_loss = []
-        for sem, depth in tqdm(iter(train_loader)):
+        for sem, depth, case, _ in tqdm(iter(train_loader)):
             sem = sem.float().to(device)
             depth = depth.float().to(device)
-            
+            case = case.float().to(device)
+
             optimizer.zero_grad()
-            
             model_pred = model(sem)
+            #limit max depth by case
+            max = 130 + 10*case
+            for i in range(len(model_pred)):
+                model_pred[i][0][model_pred[i][0]>max[i]] = max[i]
+
             loss = criterion(model_pred, depth)
-            
             loss.backward()
             optimizer.step()
             

@@ -19,13 +19,16 @@ from sklearn.metrics import mean_squared_error
 import warnings
 
 from util.dataset import CustomDataset, data_split
+from util.save_vae_data import save_imgs
 from util.train import train
+from util.vae_run import generate_data
 from inference import inference
 import importlib
 import json
 import argparse
 parser = argparse.ArgumentParser(description='config_file')
 parser.add_argument('--model', default='base')
+parser.add_argument('--vae', default=False)
 args = parser.parse_args()
 
 with open('./config/{}_config.json'.format(args.model), 'r') as f:
@@ -51,7 +54,7 @@ if __name__ == '__main__':
     
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-    seed_everything(config['SEED']) # Seed 고정
+    seed_everything(config['SEED']) # Seed fixed
 
     ###############################################################################################################################
     #set data paths
@@ -63,11 +66,18 @@ if __name__ == '__main__':
     train_sem_paths, train_depth_paths, val_sem_paths, val_depth_paths = d_split.split(0.8)
 
     #define dataset
-    train_dataset = CustomDataset(train_sem_paths, train_depth_paths)
-    train_loader = DataLoader(train_dataset, batch_size = config['BATCH_SIZE'], shuffle=True, num_workers=0)
-
-    val_dataset = CustomDataset(val_sem_paths, val_depth_paths)
-    val_loader = DataLoader(val_dataset, batch_size=config['BATCH_SIZE'], shuffle=True, num_workers=0)
+    if args.vae :
+        print("use VAE dataset")
+        train_dataset, val_dataset = generate_data(config, train_sem_paths, train_depth_paths, val_sem_paths, val_depth_paths)
+        train_loader = DataLoader(train_dataset, batch_size = config['BATCH_SIZE'], shuffle=True, num_workers=0)
+        val_loader = DataLoader(val_dataset, batch_size=config['BATCH_SIZE'], shuffle=True, num_workers=0)
+        save_imgs(train_loader, device)
+    else:    
+        train_dataset = CustomDataset(train_sem_paths, train_depth_paths)
+        val_dataset = CustomDataset(val_sem_paths, val_depth_paths)
+        train_loader = DataLoader(train_dataset, batch_size = config['BATCH_SIZE'], shuffle=True, num_workers=0)
+        val_loader = DataLoader(val_dataset, batch_size=config['BATCH_SIZE'], shuffle=True, num_workers=0)
+    
     ###############################################################################################################################
     #run!!
     model = model_cfg.DepthModel(config['HEIGHT'], config['WIDTH'])
