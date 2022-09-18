@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import os
 import cv2
+import pdb
 
 def inference(model, class_model, test_loader, device):
     model.to(device)
@@ -18,13 +19,14 @@ def inference(model, class_model, test_loader, device):
             model_pred = model(sem)
 
             if class_model :
-                case = torch.argmax(class_model(sem)) +1
+                case = (torch.argmax(class_model(sem), dim=1) +1).float().to(device)
                 max = (130 + 10*case)/255
+                
                 for i in range(len(model_pred)):
                     model_pred[i][0][model_pred[i][0]>max[i]] = max[i]
 
             for pred, img_name in zip(model_pred, name):
-                pred = pred.cpu().numpy().transpose(1,2,0)*255.
+                pred = pred.cpu().numpy().transpose(1,2,0)*255
                 save_img_path = f'{img_name}'
                 result_name_list.append(save_img_path)
                 result_list.append(pred)

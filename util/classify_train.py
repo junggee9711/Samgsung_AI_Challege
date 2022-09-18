@@ -7,7 +7,7 @@ import numpy as np
 def train_classify(model, optimizer, train_loader, device):
     model.to(device)
     criterion = nn.L1Loss().to(device)
-    for epoch in range(1, 5):
+    for epoch in range(1, 21):
         model.train()
         train_loss = []
         for img, _, case, _ in tqdm(iter(train_loader)):
